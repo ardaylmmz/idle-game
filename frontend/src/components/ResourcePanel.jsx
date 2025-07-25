@@ -27,7 +27,7 @@ const resourceGlows = {
   population: "shadow-green-500/50"
 };
 
-const ResourcePanel = ({ resources, clickPower, onManualClick }) => {
+const ResourcePanel = ({ resources, clickPower, onManualClick, planetMultiplier, currentPlanet }) => {
   const [clickAnimations, setClickAnimations] = useState({});
   const [previousResources, setPreviousResources] = useState(resources);
 
@@ -45,7 +45,7 @@ const ResourcePanel = ({ resources, clickPower, onManualClick }) => {
   const handleClick = (resourceType) => {
     onManualClick(resourceType);
     
-    // Trigger click animation
+    // Trigger click animation (no screen bounce)
     setClickAnimations(prev => ({
       ...prev,
       [resourceType]: Date.now()
@@ -67,9 +67,16 @@ const ResourcePanel = ({ resources, clickPower, onManualClick }) => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-center mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
-        Resources
-      </h2>
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
+          Resources
+        </h2>
+        <div className="mt-2">
+          <Badge variant="outline" className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-purple-400">
+            🪐 {currentPlanet} (×{planetMultiplier})
+          </Badge>
+        </div>
+      </div>
       
       {Object.entries(resources).map(([resourceType, amount]) => {
         const IconComponent = resourceIcons[resourceType];
@@ -80,7 +87,7 @@ const ResourcePanel = ({ resources, clickPower, onManualClick }) => {
         
         return (
           <div key={resourceType} className="relative">
-            <Card className={`bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${glowClass} ${isClicked ? 'animate-bounce shadow-2xl' : ''}`}>
+            <Card className={`bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${glowClass}`}>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center justify-between text-lg">
                   <div className="flex items-center gap-2">
@@ -92,7 +99,7 @@ const ResourcePanel = ({ resources, clickPower, onManualClick }) => {
                     <span className="capitalize animate-fade-in text-white font-bold">{resourceType}</span>
                   </div>
                   <Badge variant="outline" className="text-xs animate-pulse bg-gray-700 text-yellow-400">
-                    +{clickPower[resourceType]}/click
+                    +{Math.floor(clickPower[resourceType] * planetMultiplier)}/click
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -115,7 +122,7 @@ const ResourcePanel = ({ resources, clickPower, onManualClick }) => {
                   {/* Button shimmer effect */}
                   <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                   <Plus className={`w-4 h-4 mr-1 ${isClicked ? 'animate-spin' : ''}`} />
-                  Generate +{clickPower[resourceType]}
+                  Generate +{Math.floor(clickPower[resourceType] * planetMultiplier)}
                 </Button>
                 
                 {/* Resource progress bar with animated fill */}
@@ -124,7 +131,7 @@ const ResourcePanel = ({ resources, clickPower, onManualClick }) => {
                     <span>Auto Production</span>
                     {increment > 0 && (
                       <span className={`text-green-400 animate-bounce text-xs font-bold`}>
-                        +{formatNumber(increment)}/s
+                        +{formatNumber(increment * planetMultiplier)}/s
                       </span>
                     )}
                   </div>
@@ -142,7 +149,7 @@ const ResourcePanel = ({ resources, clickPower, onManualClick }) => {
                 {increment > 0 && (
                   <div className="absolute top-2 right-2 animate-float-up pointer-events-none">
                     <div className={`text-sm font-bold bg-gradient-to-r ${colorGradient} bg-clip-text text-transparent drop-shadow-lg`}>
-                      +{formatNumber(increment)}
+                      +{formatNumber(increment * planetMultiplier)}
                     </div>
                   </div>
                 )}

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Rocket, Satellite, Zap, Pickaxe, Gem, Home } from "lucide-react";
+import { Rocket, Satellite, Zap, Pickaxe, Gem, Home, User } from "lucide-react";
 
-const SpaceVisuals = ({ gameState }) => {
+const SpaceVisuals = ({ gameState, currentPlanet }) => {
   const [stars, setStars] = useState([]);
   const [floatingObjects, setFloatingObjects] = useState([]);
+  const [astronauts, setAstronauts] = useState([]);
 
   useEffect(() => {
     // Generate random stars
@@ -30,6 +31,33 @@ const SpaceVisuals = ({ gameState }) => {
     setFloatingObjects(newObjects);
   }, []);
 
+  // Generate astronauts based on buildings
+  useEffect(() => {
+    const newAstronauts = [];
+    
+    Object.entries(gameState.buildings).forEach(([buildingKey, building]) => {
+      if (building.owned > 0) {
+        const astronautCount = Math.min(building.owned, 8); // Max 8 astronauts per building type
+        
+        for (let i = 0; i < astronautCount; i++) {
+          newAstronauts.push({
+            id: `${buildingKey}-${i}`,
+            type: buildingKey,
+            x: Math.random() * 80 + 10, // Keep within screen bounds
+            y: Math.random() * 80 + 10,
+            targetX: Math.random() * 80 + 10,
+            targetY: Math.random() * 80 + 10,
+            speed: Math.random() * 2 + 1,
+            size: Math.random() * 8 + 12,
+            animationDelay: i * 0.5
+          });
+        }
+      }
+    });
+    
+    setAstronauts(newAstronauts);
+  }, [gameState.buildings]);
+
   const getObjectIcon = (type) => {
     switch (type) {
       case 'satellite': return Satellite;
@@ -48,8 +76,52 @@ const SpaceVisuals = ({ gameState }) => {
     }
   };
 
+  const getAstronautColor = (type) => {
+    switch (type) {
+      case 'solarPanel': return 'text-yellow-400';
+      case 'miningRig': return 'text-gray-400';
+      case 'crystalExtractor': return 'text-purple-400';
+      case 'habitat': return 'text-green-400';
+      case 'researchLab': return 'text-cyan-400';
+      default: return 'text-white';
+    }
+  };
+
+  const getAstronautIcon = (type) => {
+    switch (type) {
+      case 'solarPanel': return Zap;
+      case 'miningRig': return Pickaxe;
+      case 'crystalExtractor': return Gem;
+      case 'habitat': return Home;
+      case 'researchLab': return Satellite;
+      default: return User;
+    }
+  };
+
+  const getPlanetBackground = () => {
+    switch (currentPlanet.name) {
+      case 'Mars':
+        return 'bg-gradient-to-br from-red-900/20 to-orange-900/20';
+      case 'Europa':
+        return 'bg-gradient-to-br from-cyan-900/20 to-blue-900/20';
+      case 'Titan':
+        return 'bg-gradient-to-br from-yellow-900/20 to-orange-900/20';
+      case 'Proxima B':
+        return 'bg-gradient-to-br from-purple-900/20 to-pink-900/20';
+      case 'Kepler-442b':
+        return 'bg-gradient-to-br from-green-900/20 to-emerald-900/20';
+      case 'Alpha Centauri':
+        return 'bg-gradient-to-br from-yellow-900/20 to-gold-900/20';
+      default:
+        return 'bg-gradient-to-br from-blue-900/20 to-green-900/20';
+    }
+  };
+
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      {/* Planet-specific background */}
+      <div className={`absolute inset-0 ${getPlanetBackground()}`} />
+      
       {/* Animated Stars Background */}
       <div className="absolute inset-0">
         {stars.map((star) => (
@@ -75,7 +147,7 @@ const SpaceVisuals = ({ gameState }) => {
           return (
             <div
               key={obj.id}
-              className="absolute animate-space-float opacity-60 hover:opacity-100 transition-opacity duration-300"
+              className="absolute animate-space-float opacity-40 hover:opacity-80 transition-opacity duration-300"
               style={{
                 left: `${obj.x}%`,
                 top: `${obj.y}%`,
@@ -96,42 +168,64 @@ const SpaceVisuals = ({ gameState }) => {
         })}
       </div>
 
-      {/* Resource Collection Drones */}
+      {/* Moving Astronauts */}
       <div className="absolute inset-0">
-        {Object.entries(gameState.buildings).map(([buildingKey, building]) => {
-          if (building.owned === 0) return null;
+        {astronauts.map((astronaut) => {
+          const IconComponent = getAstronautIcon(astronaut.type);
+          const WorkIcon = getAstronautIcon(astronaut.type);
           
-          return Array.from({ length: Math.min(building.owned, 5) }, (_, i) => (
+          return (
             <div
-              key={`${buildingKey}-${i}`}
-              className="absolute animate-drone-collect opacity-50"
+              key={astronaut.id}
+              className="absolute animate-astronaut-work opacity-80 hover:opacity-100 transition-all duration-300"
               style={{
-                left: `${20 + (i * 15)}%`,
-                top: `${30 + (i * 10)}%`,
-                animationDelay: `${i * 2}s`,
-                animationDuration: '8s'
+                left: `${astronaut.x}%`,
+                top: `${astronaut.y}%`,
+                animationDuration: `${astronaut.speed * 4}s`,
+                animationDelay: `${astronaut.animationDelay}s`
               }}
             >
+              {/* Astronaut body */}
               <div className="relative">
-                {buildingKey === 'solarPanel' && (
-                  <Zap className="w-6 h-6 text-yellow-400 animate-pulse" />
-                )}
-                {buildingKey === 'miningRig' && (
-                  <Pickaxe className="w-6 h-6 text-gray-400 animate-bounce" />
-                )}
-                {buildingKey === 'crystalExtractor' && (
-                  <Gem className="w-6 h-6 text-purple-400 animate-ping" />
-                )}
-                {buildingKey === 'habitat' && (
-                  <Home className="w-6 h-6 text-green-400 animate-pulse" />
-                )}
+                <div 
+                  className={`${getAstronautColor(astronaut.type)} drop-shadow-lg`}
+                  style={{ fontSize: `${astronaut.size}px` }}
+                >
+                  👨‍🚀
+                </div>
                 
-                {/* Collection trail */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/20 rounded-full animate-pulse"></div>
+                {/* Work tool/icon floating nearby */}
+                <div 
+                  className="absolute -top-2 -right-2 animate-bounce"
+                  style={{ animationDelay: `${astronaut.animationDelay + 1}s` }}
+                >
+                  <WorkIcon 
+                    className={`${getAstronautColor(astronaut.type)} opacity-60`}
+                    style={{ width: `${astronaut.size * 0.4}px`, height: `${astronaut.size * 0.4}px` }}
+                  />
+                </div>
+                
+                {/* Work particles */}
+                <div className="absolute inset-0 animate-work-particles pointer-events-none">
+                  <div className={`w-1 h-1 bg-current ${getAstronautColor(astronaut.type)} rounded-full opacity-60 animate-ping`}></div>
+                </div>
               </div>
             </div>
-          ));
+          );
         })}
+      </div>
+
+      {/* Planet Surface Elements */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 opacity-30">
+        <div className={`h-full bg-gradient-to-t ${currentPlanet.color}/20 to-transparent`}>
+          {/* Surface details based on current planet */}
+          {currentPlanet.name === 'Mars' && (
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-r from-red-800/40 to-orange-800/40"></div>
+          )}
+          {currentPlanet.name === 'Europa' && (
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-r from-cyan-800/40 to-blue-800/40"></div>
+          )}
+        </div>
       </div>
 
       {/* Colony Growth Indicators */}
@@ -139,9 +233,12 @@ const SpaceVisuals = ({ gameState }) => {
         {gameState.resources.population > 100 && (
           <div className="animate-colony-grow">
             <div className="relative">
-              {/* Main colony structure */}
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-lg border border-blue-400/50 animate-pulse">
-                <div className="absolute inset-2 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded"></div>
+              {/* Main colony structure with planet-specific colors */}
+              <div className={`w-16 h-16 bg-gradient-to-br ${currentPlanet.color}/30 rounded-lg border border-current/50 animate-pulse`}>
+                <div className={`absolute inset-2 bg-gradient-to-br ${currentPlanet.color}/20 rounded`}></div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl">
+                  {currentPlanet.emoji}
+                </div>
               </div>
               
               {/* Colony expansion modules */}
@@ -162,54 +259,11 @@ const SpaceVisuals = ({ gameState }) => {
         )}
       </div>
 
-      {/* Energy Network Visualization */}
-      {gameState.buildings.solarPanel.owned > 0 && (
-        <div className="absolute bottom-1/4 left-1/4">
-          <div className="relative animate-energy-flow">
-            {Array.from({ length: gameState.buildings.solarPanel.owned }, (_, i) => (
-              <div
-                key={i}
-                className="absolute w-4 h-4 bg-yellow-400/60 rounded-full animate-ping"
-                style={{
-                  left: `${i * 20}px`,
-                  top: `${Math.sin(i) * 20}px`,
-                  animationDelay: `${i * 0.5}s`
-                }}
-              />
-            ))}
-            
-            {/* Energy collection beam */}
-            <div className="absolute top-0 left-0 w-1 h-32 bg-gradient-to-t from-yellow-400/0 to-yellow-400/60 animate-pulse transform rotate-12"></div>
-          </div>
-        </div>
-      )}
-
-      {/* Mining Operations */}
-      {gameState.buildings.miningRig.owned > 0 && (
-        <div className="absolute bottom-1/3 right-1/3">
-          <div className="animate-mining-operation">
-            {Array.from({ length: Math.min(gameState.buildings.miningRig.owned, 3) }, (_, i) => (
-              <div
-                key={i}
-                className="absolute"
-                style={{
-                  left: `${i * 25}px`,
-                  top: `${i * 15}px`
-                }}
-              >
-                <Pickaxe className="w-8 h-8 text-gray-400 animate-bounce" />
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-400 rounded-full animate-ping"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Nebula Effects */}
+      {/* Enhanced Nebula Effects for different planets */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-purple-500/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-gradient-to-br from-blue-500/20 to-transparent rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-br from-pink-500/20 to-transparent rounded-full blur-xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+        <div className={`absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br ${currentPlanet.color}/20 to-transparent rounded-full blur-3xl animate-pulse`}></div>
+        <div className={`absolute bottom-1/4 right-1/4 w-48 h-48 bg-gradient-to-br ${currentPlanet.color}/15 to-transparent rounded-full blur-2xl animate-pulse`} style={{ animationDelay: '2s' }}></div>
+        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-br ${currentPlanet.color}/10 to-transparent rounded-full blur-xl animate-pulse`} style={{ animationDelay: '4s' }}></div>
       </div>
     </div>
   );

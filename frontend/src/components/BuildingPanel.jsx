@@ -21,7 +21,7 @@ const buildingColors = {
   researchLab: "from-cyan-400 to-blue-500"
 };
 
-const BuildingPanel = ({ buildings, resources, onPurchase, onUpgrade }) => {
+const BuildingPanel = ({ buildings, resources, onPurchase, onUpgrade, planetMultiplier = 1 }) => {
   const formatNumber = (num) => {
     if (num >= 1e9) return (num / 1e9).toFixed(2) + "B";
     if (num >= 1e6) return (num / 1e6).toFixed(2) + "M";
@@ -38,14 +38,18 @@ const BuildingPanel = ({ buildings, resources, onPurchase, onUpgrade }) => {
   };
 
   const calculateProduction = (building) => {
-    return building.baseProduction * Math.pow(building.efficiency, building.level);
+    const baseProduction = building.baseProduction * Math.pow(building.efficiency, building.level);
+    return baseProduction * planetMultiplier;
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-        Buildings & Infrastructure
-      </h2>
+      <div className="text-center">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          Buildings & Infrastructure
+        </h2>
+        <p className="text-gray-400 mt-2">Production boosted by ×{planetMultiplier} on current planet</p>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {Object.entries(buildings).map(([buildingKey, building]) => {
@@ -84,16 +88,23 @@ const BuildingPanel = ({ buildings, resources, onPurchase, onUpgrade }) => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <div className="text-gray-400">Production</div>
+                    <div className="text-gray-400">Base Production</div>
                     <div className="font-bold text-green-400">
-                      +{formatNumber(production)}/s {building.produces}
+                      +{formatNumber(building.baseProduction * Math.pow(building.efficiency, building.level))}/s
                     </div>
                   </div>
                   <div>
-                    <div className="text-gray-400">Total Output</div>
+                    <div className="text-gray-400">Boosted Output</div>
                     <div className="font-bold text-blue-400">
-                      {formatNumber(production * building.owned)}/s
+                      +{formatNumber(production)}/s {building.produces}
                     </div>
+                  </div>
+                </div>
+
+                <div className="text-center p-2 bg-gray-900/50 rounded-lg">
+                  <div className="text-xs text-gray-400">Total Empire Production</div>
+                  <div className="font-bold text-yellow-400">
+                    {formatNumber(production * building.owned)}/s
                   </div>
                 </div>
 
