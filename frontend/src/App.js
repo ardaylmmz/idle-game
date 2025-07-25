@@ -1,14 +1,14 @@
 import React from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import SpaceColonyGame from "./components/SpaceColonyGame";
+import SpaceFarmingGame from "./components/SpaceColonyGame";
 
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<SpaceColonyGame />} />
+          <Route path="/" element={<SpaceFarmingGame />} />
         </Routes>
       </BrowserRouter>
     </div>
