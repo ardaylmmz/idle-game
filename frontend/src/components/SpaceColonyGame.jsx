@@ -8,6 +8,7 @@ import ResourcePanel from "./ResourcePanel";
 import BuildingPanel from "./BuildingPanel";
 import AchievementPanel from "./AchievementPanel";
 import PrestigePanel from "./PrestigePanel";
+import SpaceVisuals from "./SpaceVisuals";
 import { mockData } from "../utils/mockData";
 import { Sparkles, Zap, Wrench, Users } from "lucide-react";
 
@@ -107,8 +108,11 @@ const SpaceColonyGame = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white">
-      <div className="container mx-auto p-6">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white relative overflow-hidden">
+      {/* Background Space Visuals */}
+      <SpaceVisuals gameState={gameState} />
+      
+      <div className="container mx-auto p-6 relative z-10">
         <div className="text-center mb-8">
           <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
             🚀 Stellar Colony

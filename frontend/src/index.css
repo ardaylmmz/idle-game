@@ -138,6 +138,83 @@ code {
   }
 }
 
+@keyframes space-float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-20px) translateX(10px) rotate(90deg);
+  }
+  50% {
+    transform: translateY(-10px) translateX(-10px) rotate(180deg);
+  }
+  75% {
+    transform: translateY(10px) translateX(5px) rotate(270deg);
+  }
+}
+
+@keyframes drone-collect {
+  0% {
+    transform: translateX(0px) translateY(0px);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateX(100px) translateY(-50px);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(200px) translateY(0px);
+    opacity: 1;
+  }
+  75% {
+    transform: translateX(100px) translateY(50px);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(0px) translateY(0px);
+    opacity: 0.3;
+  }
+}
+
+@keyframes colony-grow {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes energy-flow {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes mining-operation {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes pulse-glow {
   0%, 100% {
     box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
@@ -192,6 +269,30 @@ code {
 .animate-gradient-shift {
   background-size: 200% 200%;
   animation: gradient-shift 3s ease infinite;
+}
+
+.animate-space-float {
+  animation: space-float 8s ease-in-out infinite;
+}
+
+.animate-drone-collect {
+  animation: drone-collect 8s ease-in-out infinite;
+}
+
+.animate-colony-grow {
+  animation: colony-grow 4s ease-in-out infinite;
+}
+
+.animate-energy-flow {
+  animation: energy-flow 2s ease-in-out infinite;
+}
+
+.animate-mining-operation {
+  animation: mining-operation 1s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 10s linear infinite;
 }
 
 .animate-pulse-glow {

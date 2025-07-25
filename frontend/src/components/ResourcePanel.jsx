@@ -4,7 +4,6 @@ import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
 import { Zap, Pickaxe, Gem, Users, Plus } from "lucide-react";
-import AnimatedCounter from "./AnimatedCounter";
 import ResourceParticles from "./ResourceParticles";
 
 const resourceIcons = {
@@ -63,7 +62,7 @@ const ResourcePanel = ({ resources, clickPower, onManualClick }) => {
   };
 
   const getResourceIncrement = (resourceType) => {
-    return resources[resourceType] - previousResources[resourceType];
+    return Math.max(0, resources[resourceType] - previousResources[resourceType]);
   };
 
   return (
@@ -86,43 +85,45 @@ const ResourcePanel = ({ resources, clickPower, onManualClick }) => {
                 <CardTitle className="flex items-center justify-between text-lg">
                   <div className="flex items-center gap-2">
                     <div className="relative">
-                      <IconComponent className={`w-5 h-5 bg-gradient-to-r ${colorGradient} bg-clip-text text-transparent ${isClicked ? 'animate-spin' : 'animate-pulse'}`} />
+                      <IconComponent className={`w-6 h-6 bg-gradient-to-r ${colorGradient} bg-clip-text text-transparent ${isClicked ? 'animate-spin' : 'animate-pulse'}`} />
                       {/* Pulsing ring around icon */}
-                      <div className={`absolute inset-0 w-5 h-5 rounded-full bg-gradient-to-r ${colorGradient} opacity-20 animate-ping`}></div>
+                      <div className={`absolute inset-0 w-6 h-6 rounded-full bg-gradient-to-r ${colorGradient} opacity-20 animate-ping`}></div>
                     </div>
-                    <span className="capitalize animate-fade-in">{resourceType}</span>
+                    <span className="capitalize animate-fade-in text-white font-bold">{resourceType}</span>
                   </div>
-                  <Badge variant="outline" className="text-xs animate-pulse">
+                  <Badge variant="outline" className="text-xs animate-pulse bg-gray-700 text-yellow-400">
                     +{clickPower[resourceType]}/click
                   </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  <AnimatedCounter 
-                    value={amount} 
-                    formatNumber={formatNumber}
-                    className="animate-fade-in"
-                  />
+                {/* Large, visible resource count */}
+                <div className="text-center">
+                  <div className={`text-4xl font-bold bg-gradient-to-r ${colorGradient} bg-clip-text text-transparent drop-shadow-lg`}>
+                    {formatNumber(amount)}
+                  </div>
+                  <div className="text-sm text-gray-400 mt-1">
+                    Current {resourceType}
+                  </div>
                 </div>
                 
                 <Button
                   onClick={() => handleClick(resourceType)}
-                  className={`w-full bg-gradient-to-r ${colorGradient} hover:opacity-90 transition-all duration-200 transform active:scale-95 hover:shadow-lg relative overflow-hidden group`}
+                  className={`w-full bg-gradient-to-r ${colorGradient} hover:opacity-90 transition-all duration-200 transform active:scale-95 hover:shadow-lg relative overflow-hidden group text-white font-bold`}
                   size="sm"
                 >
                   {/* Button shimmer effect */}
                   <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                   <Plus className={`w-4 h-4 mr-1 ${isClicked ? 'animate-spin' : ''}`} />
-                  Generate
+                  Generate +{clickPower[resourceType]}
                 </Button>
                 
                 {/* Resource progress bar with animated fill */}
                 <div className="space-y-1">
                   <div className="text-xs text-gray-400 flex justify-between">
-                    <span>Production Rate</span>
+                    <span>Auto Production</span>
                     {increment > 0 && (
-                      <span className={`text-green-400 animate-bounce text-xs`}>
+                      <span className={`text-green-400 animate-bounce text-xs font-bold`}>
                         +{formatNumber(increment)}/s
                       </span>
                     )}
@@ -130,17 +131,17 @@ const ResourcePanel = ({ resources, clickPower, onManualClick }) => {
                   <div className="relative">
                     <Progress 
                       value={Math.min((amount % 1000) / 10, 100)} 
-                      className="h-2"
+                      className="h-3"
                     />
                     {/* Animated progress glow */}
-                    <div className={`absolute inset-0 h-2 bg-gradient-to-r ${colorGradient} opacity-30 rounded-full animate-pulse`}></div>
+                    <div className={`absolute inset-0 h-3 bg-gradient-to-r ${colorGradient} opacity-30 rounded-full animate-pulse`}></div>
                   </div>
                 </div>
 
                 {/* Floating resource indicator */}
                 {increment > 0 && (
                   <div className="absolute top-2 right-2 animate-float-up pointer-events-none">
-                    <div className={`text-xs font-bold bg-gradient-to-r ${colorGradient} bg-clip-text text-transparent`}>
+                    <div className={`text-sm font-bold bg-gradient-to-r ${colorGradient} bg-clip-text text-transparent drop-shadow-lg`}>
                       +{formatNumber(increment)}
                     </div>
                   </div>
@@ -171,11 +172,8 @@ const ResourcePanel = ({ resources, clickPower, onManualClick }) => {
         <CardContent className="p-4 relative z-10">
           <div className="text-center">
             <div className="text-sm text-gray-400 mb-2">Total Empire Value</div>
-            <div className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-              <AnimatedCounter 
-                value={Object.values(resources).reduce((sum, val) => sum + val, 0)}
-                formatNumber={formatNumber}
-              />
+            <div className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+              {formatNumber(Object.values(resources).reduce((sum, val) => sum + val, 0))}
             </div>
           </div>
         </CardContent>
