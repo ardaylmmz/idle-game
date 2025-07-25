@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
-import { Seedling, Wheat, DollarSign, FlaskConical, Star, Plus } from "lucide-react";
+import { Sprout, Wheat, DollarSign, FlaskConical, Star, Plus } from "lucide-react";
 import ResourceParticles from "./ResourceParticles";
 
 const resourceIcons = {
-  seeds: Seedling,
+  seeds: Sprout,
   crops: Wheat,
   money: DollarSign,
   research: FlaskConical,
